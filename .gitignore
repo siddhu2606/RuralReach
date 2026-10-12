@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+extracted/
+processed/unmatched_nrega_districts.csv.bak

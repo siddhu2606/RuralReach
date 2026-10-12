@@ -1,0 +1,70 @@
+state,source_name,census_name,note
+Andaman and Nicobar,Nicobar Islands,Nicobars,spelling
+Andhra Pradesh,Cuddapah,Y.S.R.,renamed
+Andhra Pradesh,Nellore,Sri Potti Sriramulu Nellore,renamed
+Arunachal Pradesh,Upper Dibang Valley,Dibang Valley,2011 boundary
+Assam,North Cachar Hills,Dima Hasao,renamed
+Assam,Sibsagar,Sivasagar,spelling
+Bihar,Bhabua,Kaimur (Bhabua),alt name
+Chhattisgarh,Dantewada,Dakshin Bastar Dantewada,alt name
+Chhattisgarh,Kanker,Uttar Bastar Kanker,alt name
+Chhattisgarh,Kawardha,Kabeerdham,alt name
+Chhattisgarh,Kabirdham,Kabeerdham,spelling
+Chhattisgarh,Korea,Koriya,spelling
+Delhi,North West Delhi,North West,prefix
+Delhi,South Delhi,South,prefix
+Delhi,West Delhi,West,prefix
+Delhi,South West Delhi,South West,prefix
+Delhi,North East Delhi,North East,prefix
+Delhi,East Delhi,East,prefix
+Delhi,North Delhi,North,prefix
+Delhi,Central Delhi,Central,prefix
+Gujarat,Dahod,Dohad,spelling
+Haryana,Sonepat,Sonipat,spelling
+Jammu and Kashmir,Bagdam,Badgam,spelling
+Jammu and Kashmir,Ladakh (Leh),Leh(Ladakh),spelling
+Jammu and Kashmir,Rajauri,Rajouri,spelling
+Jharkhand,Koderma,Kodarma,spelling
+Karnataka,Bangalore Urban,Bangalore,alt name
+Lakshadweep,Kavaratti,Lakshadweep,HQ -> UT
+Madhya Pradesh,East Nimar,Khandwa (East Nimar),alt name
+Madhya Pradesh,West Nimar,Khargone (West Nimar),alt name
+Madhya Pradesh,Narsinghpur,Narsimhapur,spelling
+Maharashtra,Garhchiroli,Gadchiroli,spelling
+Maharashtra,Greater Bombay,Mumbai,renamed
+Manipur,East Imphal,Imphal East,word order
+Manipur,West Imphal,Imphal West,word order
+Orissa,Boudh,Baudh,spelling
+Orissa,Deogarh,Debagarh,spelling
+Orissa,Keonjhar,Kendujhar,spelling
+Orissa,Sonepur,Subarnapur,renamed
+Puducherry,Puducherry,PONDICHERRY,renamed
+Punjab,Nawan Shehar,Shahid Bhagat Singh Nagar,renamed
+Punjab,Mohali,Sahibzada Ajit Singh Nagar,alt name
+Sikkim,North Sikkim,North  District,suffix
+Sikkim,South Sikkim,South District,suffix
+Sikkim,East Sikkim,East District,suffix
+Sikkim,West Sikkim,West District,suffix
+Tamil Nadu,Nilgiris,The Nilgiris,article
+Tamil Nadu,Tirunelveli Kattabo,Tirunelveli,truncated
+Uttar Pradesh,Badaun,Budaun,spelling
+Uttar Pradesh,Hathras,Mahamaya Nagar,renamed
+Uttar Pradesh,Kanpur,Kanpur Nagar,short name
+Uttar Pradesh,Lakhimpur Kheri,Kheri,short name
+Uttar Pradesh,Ramabai Nagar,Kanpur Dehat,renamed
+Uttaranchal,Pauri Garhwal,Garhwal,short name
+West Bengal,East Midnapore,Purba Medinipur,spelling
+West Bengal,West Midnapore,Paschim Medinipur,spelling
+West Bengal,North 24 Parganas,North Twenty Four Parganas,numerals
+West Bengal,South 24 Parganas,South Twenty Four Parganas,numerals
+Haryana,Mahendragarh-Narnaul,Mahendragarh,alt name
+Odisha,Balasore,Baleshwar,renamed
+Punjab,Nawanshahr,Shahid Bhagat Singh Nagar,renamed
+Punjab,Ropar (Rupnagar),Rupnagar,alt name
+Uttar Pradesh,Khiri (Lakhimpur),Kheri,alt name
+Uttar Pradesh,Prayagraj,Allahabad,renamed
+Uttar Pradesh,Amroha,Jyotiba Phule Nagar,renamed
+Uttrakhand,Dehradoon,Dehradun,spelling
+West Bengal,Hooghly,Hugli,spelling
+West Bengal,Medinipur(W),Paschim Medinipur,spelling
+West Bengal,Sounth 24 Parganas,South Twenty Four Parganas,spelling

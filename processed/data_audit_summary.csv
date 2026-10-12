@@ -1,0 +1,12 @@
+source,role,rows,cols,numeric_cols,text_cols,duplicate_rows,missing_cells,missing_pct,geographic_level,period,states,join_key,note
+India Census 2011,CORE / master,640,25,25,0,0,0,0.0,district (640),2011,35.0,State+District,"no urban/rural split, no facilities; District_code is a 1..640 serial, not the official code"
+District centroids,CORE,594,4,4,0,0,0,0.0,district (594),undated (older district list),35.0,State+District,"names follow older spellings (Orissa, Uttaranchal)"
+District shapefile (archive.zip),MAP,693,13,13,0,0,196,2.18,district polygons (693),post-2011 boundaries + 2011 pop,37.0,Population anchor + name,33 post-2011 districts have no population; Telangana split out
+Railway schedules,CORE,417080,8,8,0,0,22561,0.68,train x station stop (417k),undated timetable,,station_code,NO coordinates -> need station coordinate table
+Railway stations (DataMeet),SUPPLEMENT,8990,5,5,0,0,13596,30.25,station point (8.5k),undated,30.0,station_code,"supplementary open data, supplies lat/lon for timetable codes"
+Commodity / mandi prices,SUPPORTING,2733,10,10,0,0,0,0.0,market x commodity (2.7k),single day 19-May-2025,16.0,State+District,only 16 states / 158 districts
+NREGA,SUPPORTING,740,30,30,0,0,0,0.0,"district (740, current)",latest FY snapshot (undated),34.0,State+District,uses present-day districts (incl. new splits)
+Literacy Data 2011,SUPPORTING,640,4,4,0,0,0,0.0,district (640),2011,35.0,State+District,duplicates Census-derived literacy -> validation only
+Dropout ratio 2012-15,OPTIONAL,110,14,14,0,0,0,0.0,state/UT x year,2012-13..2014-15,40.0,State,contains 'NR' / corrupt text cells
+PHC doctors 2017,CORE (health),37,10,10,0,0,114,30.81,state/UT (37),2017,37.0,State,state-level only; not a district facility file
+hlpca-colnames,METADATA,145,2,2,0,0,0,0.0,n/a,2011 HLPCA,,,column dictionary - NOT merged

@@ -1,0 +1,12 @@
+check,passed,detail
+one row per district / no duplicate State+District,True,640 rows
+row count equals Census master (no multiplication),True,
+District_ID unique,True,
+percentages inside 0-100,True,27 columns
+no negative counts,True,
+"latitude/longitude inside India bbox (6-38N, 68-98E)",True,"lat 7.8..34.6, lon 68.8..96.8"
+numeric columns are numeric,True,
+every district has a geometry,True,
+area plausible (sum within 10% of India's ~3.29M km2 land area),True,"3,188,994 km2"
+Census indicators reconcile (Male+Female==Pop),True,
+source period recorded for each block,True,

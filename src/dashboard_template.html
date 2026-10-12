@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RuralReach – District Accessibility Dashboard</title>
+<meta name="description" content="Interactive district-level map of rural service accessibility in India: education, transport, health and livelihood access for 640 Census-2011 districts.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f78'/%3E%3Ccircle cx='16' cy='13' r='5' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3Cpath d='M16 29c-6-7-9-10.5-9-15' stroke='%23e07a1f' stroke-width='0' fill='none'/%3E%3Cpath d='M16 27l-7-9h14z' fill='%23e07a1f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --bg:#f5f7f8; --card:#ffffff; --ink:#1d2b32; --muted:#5d6d75; --line:#dde4e8; --map-bg:#eef2f4; --stroke:#ffffff;
+  --brand:#1f6f78; --accent:#e07a1f; --bad:#b5382a; --good:#2f8f5b; --focus:#e07a1f; --shadow:0 1px 2px rgba(20,40,50,.06),0 4px 14px rgba(20,40,50,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10181c; --card:#172227; --ink:#e6eef1; --muted:#9db0b8; --line:#273840; --map-bg:#0e1519; --stroke:#10181c; --brand:#4db3be; --accent:#f0a05a; --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{--bg:#10181c; --card:#172227; --ink:#e6eef1; --muted:#9db0b8; --line:#273840; --map-bg:#0e1519; --stroke:#10181c; --brand:#4db3be; --accent:#f0a05a; --shadow:0 1px 2px rgba(0,0,0,.4);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1320px;margin:0 auto;padding:0 16px}
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:14px;padding:14px 0;flex-wrap:wrap}
+.logo{width:38px;height:38px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:none}
+h1{font-size:20px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px}
+.spacer{flex:1}
+.toplinks{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;text-decoration:none;cursor:pointer}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi b{display:block;font-size:26px;line-height:1.1;letter-spacing:-.02em}
+.kpi span{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}
+.kpi.alert b{color:var(--bad)}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr);gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line)}
+.controls label{display:flex;flex-direction:column;font-size:11.5px;color:var(--muted);gap:3px;flex:1;min-width:150px}
+select,input[type=search]{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%}
+#map{height:min(70vh,640px);background:var(--map-bg);border-radius:0 0 14px 14px;outline:none}
+.leaflet-container{font:inherit;background:var(--map-bg)}
+.legend{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;box-shadow:var(--shadow);max-width:230px;color:var(--ink)}
+.legend .bar{height:10px;border-radius:5px;margin:5px 0 3px}
+.legend .row{display:flex;justify-content:space-between;color:var(--muted)}
+.legend .sw{display:flex;align-items:center;gap:7px;margin:2px 0;cursor:default}
+.legend .sw i{width:12px;height:12px;border-radius:3px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.legend small{display:block;color:var(--muted);margin-top:4px;line-height:1.3}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 8px}
+.tab{background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:12px 12px 9px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.pane{padding:14px 16px 16px;max-height:calc(min(70vh,640px) + 58px);overflow:auto}
+.pane[hidden]{display:none}
+.empty{color:var(--muted);padding:26px 6px;text-align:center}
+.empty svg{opacity:.55;margin-bottom:6px}
+.dname{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0}
+.dstate{color:var(--muted);font-size:13px;margin-bottom:10px}
+.score{display:flex;align-items:flex-end;gap:12px;margin:8px 0 10px}
+.score .big{font-size:46px;line-height:.95;font-weight:750;letter-spacing:-.03em}
+.score .of{color:var(--muted);font-size:13px;padding-bottom:5px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.badge{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--bg)}
+.badge.crit{background:color-mix(in srgb,var(--bad) 14%,var(--card));border-color:color-mix(in srgb,var(--bad) 45%,var(--line));color:var(--bad);font-weight:600}
+.pillar{margin:9px 0}
+.pillar .h{display:flex;justify-content:space-between;font-size:13px}
+.pillar .h span:last-child{font-variant-numeric:tabular-nums;font-weight:650}
+.track{position:relative;height:9px;background:var(--bg);border:1px solid var(--line);border-radius:6px;margin-top:4px}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:5px}
+.med{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55}
+.note{font-size:11.5px;color:var(--muted);margin-top:2px}
+dl.facts{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:14px 0 0;font-size:13.5px}
+dl.facts dt{color:var(--muted)} dl.facts dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{position:sticky;top:-14px;background:var(--card);text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--bg)}
+.mini{display:inline-block;height:7px;border-radius:4px;vertical-align:middle;margin-right:6px}
+.srow{display:grid;grid-template-columns:128px 1fr 44px;gap:8px;align-items:center;font-size:12.5px;padding:4px 0;cursor:pointer;border:0;background:none;width:100%;text-align:left;color:inherit;font-family:inherit}
+.srow:hover .sname{text-decoration:underline}
+.sname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbar{height:9px;background:var(--bg);border-radius:5px;position:relative;border:1px solid var(--line)}
+.sbar i{position:absolute;inset:0 auto 0 0;border-radius:4px}
+.toggle{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+section.info{margin:26px 0}
+section.info h2{font-size:18px;margin:0 0 10px;letter-spacing:-.01em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.cards .card{padding:16px}
+.cards h3{margin:0 0 6px;font-size:15px}
+.cards p,.cards li{color:var(--muted);font-size:13.5px;margin:4px 0}
+.cards ul{padding-left:18px;margin:6px 0}
+.pill4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.pill4 div{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:12px;color:var(--muted)}
+.pill4 b{display:block;color:var(--ink);font-size:17px}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0 40px;color:var(--muted);font-size:12.5px}
+.tt{font-size:12.5px}
+.leaflet-tooltip{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:8px}
+.leaflet-tooltip-top:before{border-top-color:var(--line)}
+.leaflet-control-zoom a{background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+@media (max-width:980px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.pane{max-height:none}}
+@media (max-width:520px){.kpis{grid-template-columns:1fr 1fr}.kpi b{font-size:22px}h1{font-size:18px}.srow{grid-template-columns:100px 1fr 40px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32"><circle cx="16" cy="13" r="5.5" fill="none" stroke="#fff" stroke-width="2.8"/><path d="M16 29l-7.5-9.5h15z" fill="#f0a05a"/></svg></div>
+    <div>
+      <h1>RuralReach</h1>
+      <div class="sub">Rural Service Accessibility Intelligence System · 640 districts · Census 2011 base</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="toplinks">
+      <a class="btn" href="data/RuralReach_Master.csv" download>⬇ Master dataset (CSV)</a>
+      <a class="btn primary" id="gh" href="https://github.com/siddhu2606/RuralReach">GitHub repository</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="kpis" id="kpis" aria-label="Headline numbers"></div>
+
+  <div class="grid">
+    <div class="card" id="mapcard">
+      <div class="controls">
+        <label>Colour the map by
+          <select id="metric"></select>
+        </label>
+        <label>State / UT
+          <select id="state"><option value="">All India</option></select>
+        </label>
+        <label>Find a district
+          <input type="search" id="search" list="dlist" placeholder="e.g. Bastar, Kolkata…" autocomplete="off">
+          <datalist id="dlist"></datalist>
+        </label>
+      </div>
+      <div id="map" role="application" aria-label="Choropleth map of Indian districts"></div>
+    </div>
+
+    <aside class="card" aria-label="Details">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="t-d" aria-selected="true" aria-controls="p-d">District</button>
+        <button class="tab" role="tab" id="t-p" aria-selected="false" aria-controls="p-p">Priority list</button>
+        <button class="tab" role="tab" id="t-s" aria-selected="false" aria-controls="p-s">States</button>
+      </div>
+      <div class="pane" id="p-d" role="tabpanel" aria-labelledby="t-d"></div>
+      <div class="pane" id="p-p" role="tabpanel" aria-labelledby="t-p" hidden></div>
+      <div class="pane" id="p-s" role="tabpanel" aria-labelledby="t-s" hidden></div>
+    </aside>
+  </div>
+
+  <section class="info" id="about">
+    <h2>How to read this</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>The RuralReach Accessibility Index (0–100)</h3>
+        <p>Higher = better access. Each indicator is log-scaled where skewed and winsorised between the 5th and 95th percentile, averaged inside a pillar, then weighted:</p>
+        <div class="pill4"><div><b>30%</b>Education</div><div><b>30%</b>Transport</div><div><b>20%</b>Health*</div><div><b>20%</b>Livelihood</div></div>
+        <p>Rankings are robust: equal-weight rank correlation 0.99, random weights median 0.90.</p>
+      </div>
+      <div class="card">
+        <h3>Priority groups</h3>
+        <ul>
+          <li><b>Critical gap</b> – farm-dependent (≥ median share of farm workers) <em>and</em> bottom-quartile RAI.</li>
+          <li><b>High priority</b> – rural with medium access, or non-rural with low access.</li>
+          <li><b>Monitor</b> / <b>Well served</b> – the rest.</li>
+        </ul>
+        <p>Spatial clusters (Local Moran's I) show whether a low-access district sits in a contiguous cold spot.</p>
+      </div>
+      <div class="card">
+        <h3>Read with care</h3>
+        <ul>
+          <li>*<b>Health is state-level</b> (PHC doctor staffing 2017) – every district in a state shares that value.</li>
+          <li>Census 2011 attributes on 2011 districts; post-2011 splits were folded back into their parent.</li>
+          <li>Rurality is proxied by farm-worker share (no urban/rural split in the data).</li>
+          <li>No school-facility, internet or district PHC data were supplied, so no digital or facility pillar.</li>
+          <li>Scores are associations for prioritisation, not causal estimates.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">Fundamentals of Data Science project · Data: Census of India 2011, district shapefile, Indian Railways timetable + DataMeet station coordinates, MGNREGA, Agmarknet snapshot, MoHFW PHC staffing 2017, UDISE dropout 2012–15 · Source code, notebooks and methodology on <a href="https://github.com/siddhu2606/RuralReach">GitHub</a>.</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+(function(){
+const T = DATA.tab, M = DATA.meta, N = T.id.length;
+const $ = (s, r=document) => r.querySelector(s);
+const fmt = (v, d=0) => v==null ? '–' : Number(v).toLocaleString('en-IN', {maximumFractionDigits:d, minimumFractionDigits:d});
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- colour scales: colour-blind-safe orange→teal diverging, blue sequential ---------- */
+const DIV = ['#b5461a','#e9a15b','#f1ecdf','#79b4b2','#1f6f78'];
+const SEQ = ['#eef3f9','#b9cde6','#7aa3d1','#3f78b8','#1d4b85'];
+function lerp(a,b,t){return a+(b-a)*t}
+function hex(h){return [1,3,5].map(i=>parseInt(h.slice(i,i+2),16))}
+function ramp(stops,t){t=Math.max(0,Math.min(1,t));const p=t*(stops.length-1),i=Math.min(Math.floor(p),stops.length-2),f=p-i;const a=hex(stops[i]),b=hex(stops[i+1]);return 'rgb('+a.map((x,k)=>Math.round(lerp(x,b[k],f))).join(',')+')'}
+const CATS = {
+  cl: {names: Object.fromEntries(M.clusters.map(c=>[c.i,c.n])), colors:['#2f8f5b','#1f6f78','#e8b44a','#e07a1f','#b5382a'], key:'cl'},
+  pg: {names:{'1 - Critical gap (rural & low access)':'Critical gap','2 - High priority':'High priority','3 - Monitor':'Monitor','4 - Well served':'Well served'},
+       colors:{'1 - Critical gap (rural & low access)':'#b5382a','2 - High priority':'#e9a15b','3 - Monitor':'#cfd9dd','4 - Well served':'#1f6f78'}, key:'pg'},
+  lisa:{colors:{'High-High (hot spot)':'#2f8f5b','Low-Low (cold spot)':'#b5382a','High-Low outlier':'#e8b44a','Low-High outlier':'#78a6c8','Not significant':'#e3e9ec'}, key:'lisa'}
+};
+const METRICS = [
+  {k:'rai', label:'RuralReach Accessibility Index (0–100)', type:'good', unit:'', d:0},
+  {k:'edu', label:'Education access score', type:'good', unit:'', d:0},
+  {k:'tra', label:'Transport access score', type:'good', unit:'', d:0},
+  {k:'hea', label:'Health access score (state-level)', type:'good', unit:'', d:0},
+  {k:'liv', label:'Livelihood diversification score', type:'good', unit:'', d:0},
+  {k:'lit', label:'Effective literacy rate (%)', type:'good', unit:'%', d:1},
+  {k:'rail', label:'Distance to nearest railway station (km)', type:'bad', unit:' km', d:0, log:true},
+  {k:'farm', label:'Farm-worker share (rurality proxy, %)', type:'neutral', unit:'%', d:0},
+  {k:'den', label:'Population density (per km²)', type:'neutral', unit:'/km²', d:0, log:true},
+  {k:'pg', label:'Priority group', cat:'pg'},
+  {k:'cl', label:'District typology (cluster)', cat:'cl'},
+  {k:'lisa', label:'Spatial cluster (Local Moran, RAI)', cat:'lisa'}
+];
+const mSel = $('#metric'); METRICS.forEach((m,i)=>mSel.add(new Option(m.label,i)));
+const stSel = $('#state'); M.states.slice().sort((a,b)=>a.s.localeCompare(b.s)).forEach(s=>stSel.add(new Option(titleCase(s.s)+' ('+s.n+')', s.s)));
+function titleCase(s){return s.toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).replace(/\bAnd\b/,'and').replace(/\bOf\b/,'of').replace('Nct ','NCT ')}
+const dl = $('#dlist'); for(let i=0;i<N;i++){const o=document.createElement('option');o.value=T.d[i]+' ('+titleCase(T.s[i])+')';dl.appendChild(o)}
+
+/* ---------- KPIs ---------- */
+const K = M.kpi;
+$('#kpis').innerHTML = [
+  [fmt(K.n),'districts scored, '+fmt(K.pop_m)+' M people (2011)',''],
+  [fmt(K.crit_n),'critical-gap districts · '+fmt(K.crit_pop)+' M people','alert'],
+  [fmt(K.far_n),'districts >50 km from any station · '+K.far_pop+' M people','alert'],
+  [K.moran.toFixed(2),'Moran\'s I – low access clusters in space',''],
+  [K.ml.toFixed(2),'R² predicting literacy in unseen states (honest CV)','']
+].map(([b,s,c])=>`<div class="kpi ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+
+/* ---------- map ---------- */
+const map = L.map('map',{zoomControl:true,attributionControl:false,zoomSnap:.25,zoomDelta:.5,minZoom:3.6,maxZoom:10,preferCanvas:false});
+map.fitBounds([[6.5,68],[35.7,97.5]]);
+let metric = METRICS[0], stateFilter = '', sel = -1, layers = [], stats = {};
+function transform(m,v){return v==null?null:(m.log?Math.log10(1+v):v)}
+function computeStats(m){
+  if(m.cat) return;
+  const v = T[m.k].map(x=>transform(m,x)).filter(x=>x!=null).sort((a,b)=>a-b);
+  const q = p => v[Math.min(v.length-1,Math.floor(p*(v.length-1)))];
+  stats[m.k] = {lo:q(.05), hi:q(.95)};
+}
+METRICS.forEach(computeStats);
+function colorFor(i){
+  const m = metric;
+  if(m.cat){const c=CATS[m.cat], v=T[m.k][i]; if(v==null) return '#ccc'; return Array.isArray(c.colors)?c.colors[v]:c.colors[v]}
+  const v = transform(m,T[m.k][i]); if(v==null) return '#cfd6da';
+  const s = stats[m.k], t = (v-s.lo)/(s.hi-s.lo||1);
+  if(m.type==='good') return ramp(DIV,t); if(m.type==='bad') return ramp(DIV,1-t); return ramp(SEQ,t);
+}
+function dimmed(i){return stateFilter && T.s[i]!==stateFilter}
+function style(i){
+  const on = i===sel, dim = dimmed(i);
+  return {fillColor:colorFor(i), fillOpacity: dim?.12:.96, color: on?css('--ink'):css('--stroke'), weight: on?2.4:.35, opacity: dim?.4:1};
+}
+const gl = L.geoJSON(DATA.geo,{
+  style: f=>style(f.id),
+  onEachFeature:(f,l)=>{
+    layers[f.id]=l;
+    l.on({
+      mouseover:()=>{ if(!dimmed(f.id)){ l.setStyle({weight:1.6,color:css('--ink')}); l.bringToFront(); if(sel>=0) layers[sel].bringToFront(); } },
+      mouseout:()=>l.setStyle(style(f.id)),
+      click:()=>select(f.id, false)
+    });
+    l.bindTooltip(()=>tip(f.id),{sticky:true,className:'tt',direction:'top',opacity:1});
+  }
+}).addTo(map);
+function valText(i){
+  const m=metric; if(m.cat){const v=T[m.k][i]; const c=CATS[m.cat]; return v==null?'–':(m.cat==='cl'?c.names[v]:(c.names?.[v]||v))}
+  const v=T[m.k][i]; return v==null?'no data':fmt(v,m.d)+m.unit;
+}
+function tip(i){return `<b>${esc(T.d[i])}</b>, ${esc(titleCase(T.s[i]))}<br>${esc(metric.label.replace(/ \(.*\)/,''))}: <b>${valText(i)}</b>`}
+function restyle(){layers.forEach((l,i)=>l.setStyle(style(i)));drawLegend()}
+
+/* legend */
+const legend = L.control({position:'bottomleft'});
+legend.onAdd = ()=>{const d=L.DomUtil.create('div','legend');L.DomEvent.disableClickPropagation(d);return d};
+legend.addTo(map);
+function drawLegend(){
+  const el = legend.getContainer(), m = metric; let h = `<b>${esc(m.label)}</b>`;
+  if(m.cat){
+    const c=CATS[m.cat]; const ks = Array.isArray(c.colors)? c.colors.map((_,i)=>i) : Object.keys(c.colors);
+    h += ks.map(k=>`<div class="sw"><i style="background:${Array.isArray(c.colors)?c.colors[k]:c.colors[k]}"></i>${esc(m.cat==='cl'?c.names[k]:(c.names?.[k]||k))}</div>`).join('');
+  } else {
+    const s=stats[m.k], stops = m.type==='neutral'?SEQ:DIV, rev = m.type==='bad';
+    const g = (rev?stops.slice().reverse():stops).join(',');
+    const lo = m.log?Math.pow(10,s.lo)-1:s.lo, hi = m.log?Math.pow(10,s.hi)-1:s.hi;
+    h += `<div class="bar" style="background:linear-gradient(90deg,${g})"></div><div class="row"><span>${fmt(lo,m.d)}${m.unit.trim()}</span><span>${fmt(hi,m.d)}${m.unit.trim()}</span></div>`;
+    h += `<small>${m.type==='good'?'Orange = low access, teal = high':m.type==='bad'?'Teal = close, orange = far':'Darker = higher'} · 5th–95th pct. grey = no data</small>`;
+  }
+  el.innerHTML = h;
+}
+
+/* ---------- district panel ---------- */
+const NATMED = {};
+['edu','tra','hea','liv','rai'].forEach(k=>{const v=T[k].filter(x=>x!=null).sort((a,b)=>a-b);NATMED[k]=v[Math.floor(v.length/2)]});
+const PCOL = v => ramp(DIV, v/100);
+function pillar(label,k,i,extra){
+  const v=T[k][i]; const w=v==null?0:v;
+  return `<div class="pillar"><div class="h"><span>${label}</span><span>${v==null?'–':fmt(v,0)}</span></div>
+  <div class="track" role="img" aria-label="${label} ${v==null?'no data':fmt(v,0)} out of 100, national median ${fmt(NATMED[k],0)}"><div class="fill" style="width:${w}%;background:${PCOL(w)}"></div><div class="med" style="left:${NATMED[k]}%" title="national median"></div></div>${extra?`<div class="note">${extra}</div>`:''}</div>`;
+}
+function renderDistrict(i){
+  const pg=T.pg[i], crit=pg.startsWith('1');
+  $('#p-d').innerHTML = `
+    <h2 class="dname">${esc(T.d[i])}</h2><div class="dstate">${esc(titleCase(T.s[i]))} · ${fmt(T.pop[i])} people · ${fmt(T.area[i])} km²</div>
+    <div class="score"><div class="big" style="color:${PCOL(T.rai[i])}">${fmt(T.rai[i],0)}</div><div class="of">RAI out of 100<br>rank <b>${T.rank[i]}</b> of ${N} (1 = best)</div></div>
+    <div class="badges"><span class="badge ${crit?'crit':''}">${esc(pg.slice(4))}</span><span class="badge">${esc(T.tier[i])} access tier</span><span class="badge">${esc(T.cn[i])}</span>${T.lisa[i]!=='Not significant'?`<span class="badge">${esc(T.lisa[i])}</span>`:''}</div>
+    ${pillar('Education','edu',i)}${pillar('Transport','tra',i)}${pillar('Health','hea',i,'State-level value (PHC doctor staffing, 2017)')}${pillar('Livelihood diversification','liv',i)}
+    <div class="note">Black tick = national district median</div>
+    <dl class="facts">
+      <dt>Effective literacy</dt><dd>${fmt(T.lit[i],1)}%</dd>
+      <dt>Graduates (% of population)</dt><dd>${fmt(T.grad[i],1)}%</dd>
+      <dt>Farm workers (% of workers)</dt><dd>${fmt(T.farm[i],0)}%</dd>
+      <dt>Female work participation</dt><dd>${fmt(T.fwpr[i],0)}%</dd>
+      <dt>Railway stations in district</dt><dd>${fmt(T.stn[i])}</dd>
+      <dt>Trains serving the district</dt><dd>${fmt(T.trn[i])}</dd>
+      <dt>Nearest station from centre</dt><dd>${fmt(T.rail[i],0)} km</dd>
+      <dt>NREGA avg days / household</dt><dd>${T.nd[i]==null?'not matched':fmt(T.nd[i],0)}</dd>
+      <dt>Mandis reporting (19 May 2025)</dt><dd>${T.mc[i]==null?'not in snapshot':fmt(T.mc[i])}</dd>
+    </dl>`;
+}
+function emptyPanel(){
+  $('#p-d').innerHTML = `<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><br><b>Click a district</b><br>or search by name to see its pillar scores, rank and priority group.</div>`;
+}
+function select(i, zoom){
+  const prev=sel; sel=i; if(prev>=0) layers[prev].setStyle(style(prev));
+  layers[i].setStyle(style(i)); layers[i].bringToFront();
+  renderDistrict(i); showTab('d');
+  if(zoom) map.fitBounds(layers[i].getBounds(),{maxZoom:7,padding:[40,40]});
+}
+
+/* ---------- priority list ---------- */
+let critOnly = true;
+function renderPriority(){
+  let idx = [...Array(N).keys()].filter(i=>(!stateFilter||T.s[i]===stateFilter)&&(!critOnly||T.pg[i].startsWith('1')));
+  idx.sort((a,b)=>T.rai[a]-T.rai[b]);
+  const rows = idx.slice(0,60).map((i,r)=>`<tr class="click" tabindex="0" data-i="${i}"><td class="n">${r+1}</td><td><b>${esc(T.d[i])}</b><br><span class="note">${esc(titleCase(T.s[i]))}</span></td>
+    <td class="n"><span class="mini" style="width:${Math.max(3,T.rai[i]*.5)}px;background:${PCOL(T.rai[i])}"></span>${fmt(T.rai[i],0)}</td><td class="n">${fmt(T.farm[i],0)}%</td><td class="n">${fmt(T.rail[i],0)}</td></tr>`).join('');
+  $('#p-p').innerHTML = `<div class="toggle"><label><input type="checkbox" id="crit" ${critOnly?'checked':''}> Critical-gap districts only</label><span>· ${idx.length} districts${stateFilter?' in '+esc(titleCase(stateFilter)):''}${idx.length>60?' (showing 60 lowest RAI)':''}</span></div>
+    <table><thead><tr><th class="n">#</th><th>District</th><th class="n">RAI</th><th class="n">Farm %</th><th class="n">Rail km</th></tr></thead><tbody>${rows||'<tr><td colspan=5 class="empty">No districts match.</td></tr>'}</tbody></table>`;
+  $('#crit').onchange = e=>{critOnly=e.target.checked;renderPriority()};
+  document.querySelectorAll('#p-p tr.click').forEach(tr=>{const go=()=>select(+tr.dataset.i,true);tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+}
+/* ---------- states ---------- */
+function renderStates(){
+  const rows = M.states.map(s=>`<button class="srow" data-s="${esc(s.s)}" title="${esc(titleCase(s.s))}: population-weighted RAI ${s.rai}, ${s.crit} critical-gap districts"><span class="sname">${esc(titleCase(s.s))}</span><span class="sbar"><i style="width:${s.rai}%;background:${PCOL(s.rai)}"></i></span><span class="n" style="text-align:right;font-variant-numeric:tabular-nums">${fmt(s.rai,0)}</span></button>`).join('');
+  $('#p-s').innerHTML = `<div class="note" style="margin-bottom:6px">Population-weighted mean RAI, lowest first. Click a state to filter the map.</div>${rows}`;
+  document.querySelectorAll('.srow').forEach(b=>b.onclick=()=>{stSel.value=b.dataset.s;stSel.dispatchEvent(new Event('change'))});
+}
+/* ---------- tabs ---------- */
+function showTab(k){['d','p','s'].forEach(x=>{const on=x===k;$('#t-'+x).setAttribute('aria-selected',on);$('#p-'+x).hidden=!on})}
+['d','p','s'].forEach(k=>$('#t-'+k).onclick=()=>showTab(k));
+document.querySelector('.tabs').addEventListener('keydown',e=>{const order=['d','p','s'];const cur=order.findIndex(x=>$('#t-'+x).getAttribute('aria-selected')==='true');if(e.key==='ArrowRight'){showTab(order[(cur+1)%3]);$('#t-'+order[(cur+1)%3]).focus()}if(e.key==='ArrowLeft'){showTab(order[(cur+2)%3]);$('#t-'+order[(cur+2)%3]).focus()}});
+
+/* ---------- events ---------- */
+mSel.onchange = ()=>{metric=METRICS[+mSel.value];restyle()};
+stSel.onchange = ()=>{
+  stateFilter = stSel.value; restyle(); renderPriority();
+  if(stateFilter){const b=L.featureGroup(layers.filter((_,i)=>T.s[i]===stateFilter)).getBounds();map.fitBounds(b,{padding:[30,30]})} else map.fitBounds([[6.5,68],[35.7,97.5]]);
+};
+$('#search').addEventListener('input',e=>{
+  const q=e.target.value.trim().toLowerCase(); if(!q) return;
+  let i = [...Array(N).keys()].find(i=>(T.d[i]+' ('+titleCase(T.s[i])+')').toLowerCase()===q);
+  if(i==null && q.length>2){const c=[...Array(N).keys()].filter(i=>T.d[i].toLowerCase().startsWith(q)); if(c.length===1) i=c[0]}
+  if(i!=null) select(i,true);
+});
+window.addEventListener('beforeprint',()=>map.invalidateSize());
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>setTimeout(restyle,50));
+
+emptyPanel(); renderPriority(); renderStates(); drawLegend(); restyle();
+// deep link: #d=RR123
+const m = location.hash.match(/d=(RR\d+)/); if(m){const i=T.id.indexOf(m[1]); if(i>=0) select(i,true)}
+})();
+</script>
+</body>
+</html>

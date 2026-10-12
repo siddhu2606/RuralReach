@@ -1,0 +1,5 @@
+source,source_districts,matched_to_census,census_districts_covered,census_coverage_pct,exact,alias,fuzzy,unmatched
+District centroids,594,590,590,92.2,521,45,24,4
+Literacy 2011,640,639,639,99.8,609,23,7,1
+NREGA,740,583,583,91.1,529,19,35,157
+Mandi prices,158,144,144,22.5,111,16,17,14

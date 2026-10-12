@@ -1,0 +1,41 @@
+{
+ "n_districts": 640,
+ "rai_mean": 49.1750552255672,
+ "rank_rho_equal": 0.9856076003603526,
+ "rank_rho_pca": 0.9476418246870723,
+ "rank_rho_random_median": 0.89772447411981,
+ "rank_rho_random_p5": 0.6600150169739185,
+ "moran_rai": 0.5359940702059897,
+ "moran_lit": 0.6228396776916563,
+ "k": 5,
+ "silhouette": 0.21709401902805112,
+ "ari_seed": 0.9705218105728526,
+ "ari_ward": 0.4544409678954288,
+ "ml_random": {
+  "Baseline (mean)": -0.002,
+  "Ridge": 0.531,
+  "Random Forest": 0.698,
+  "Gradient Boosting": 0.727
+ },
+ "ml_group": {
+  "Baseline (mean)": -0.053,
+  "Ridge": 0.422,
+  "Random Forest": 0.47,
+  "Gradient Boosting": 0.501
+ },
+ "ml_group_mae": {
+  "Baseline (mean)": 8.69,
+  "Ridge": 6.1,
+  "Random Forest": 5.82,
+  "Gradient Boosting": 5.69
+ },
+ "critical_districts": 146,
+ "critical_population_m": 188.149954,
+ "cluster_names": {
+  "0": "Connected & diversified",
+  "1": "Mid-access agrarian belt",
+  "2": "Dense agrarian plains (low female work participation)",
+  "3": "Remote but literate (hills, north-east, islands)",
+  "4": "Remote, farm-dependent, low literacy"
+ }
+}

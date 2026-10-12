@@ -1,0 +1,16 @@
+{
+ "polygons_unlinked":[
+  "DATA NOT AVAILABLE"
+ ],
+ "centroid_rejected":[
+
+ ],
+ "tt_codes":8539,
+ "tt_codes_with_xy":8247,
+ "mandi_unmatched":[
+
+ ],
+ "literacy_corr":0.9891780465,
+ "literacy_mae":9.8474459357,
+ "literacy_n":639
+}
