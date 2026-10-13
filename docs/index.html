@@ -269,13 +269,14 @@ const gl = L.geoJSON(DATA.geo,{
   onEachFeature:(f,l)=>{
     layers[f.id]=l;
     l.on({
-      mouseover:()=>{ if(!dimmed(f.id)){ l.setStyle({weight:1.6,color:css('--ink')}); l.bringToFront(); if(sel>=0) layers[sel].bringToFront(); } },
-      mouseout:()=>l.setStyle(style(f.id)),
+      mouseover:()=>{ if(!dimmed(f.id) && f.id!==sel) l.setStyle({weight:1.6,color:css('--ink')}); },
+      mouseout:()=>{ l.setStyle(style(f.id)); l.closeTooltip(); },
       click:()=>select(f.id, false)
     });
     l.bindTooltip(()=>tip(f.id),{sticky:true,className:'tt',direction:'top',opacity:1});
   }
 }).addTo(map);
+map.on('mouseout',()=>gl.eachLayer(l=>l.closeTooltip()));
 function valText(i){
   const m=metric; if(m.cat){const v=T[m.k][i]; const c=CATS[m.cat]; return v==null?'–':(m.cat==='cl'?c.names[v]:(c.names?.[v]||v))}
   const v=T[m.k][i]; return v==null?'no data':fmt(v,m.d)+m.unit;
